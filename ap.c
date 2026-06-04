@@ -135,6 +135,22 @@ int fwtest_cmd_wrapper(struct sigma_dut *dut, const char *arg,
 		       const char *ifname)
 {
 	int ret = -1;
+	size_t ifname_len;
+
+	if (!ifname)
+		return -1;
+
+	ifname_len = strlen(ifname);
+	if (ifname_len == 0 || ifname_len >= IFNAMSIZ ||
+	    strspn(ifname,
+		   "abcdefghijklmnopqrstuvwxyz"
+		   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		   "0123456789_.-") != ifname_len) {
+		sigma_dut_print(dut, DUT_MSG_ERROR,
+				"Invalid interface name '%s' for fwtest_cmd_wrapper",
+				ifname);
+		return -1;
+	}
 
 	if (strncmp(dut->device_driver, "ath11k", 6) == 0)
 		ret = run_system_wrapper(dut, "ath11k-fwtest -i %s %s",
